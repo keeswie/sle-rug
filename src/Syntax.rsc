@@ -32,7 +32,17 @@ lexical Int
   | "0";
 
 
-lexical Bool = ;
+lexical Bool = "True"
+  | "False"
+  | "(" Disjunction ")";
 
+lexical Disjunction = Conjunction
+  Conjunction "||" Conjunction;
 
+lexical Conjunction = Literal
+  | Literal "&&" Literal;
 
+lexical Literal = "True"
+  | "False"
+  | Bool
+  | "!" Bool;
