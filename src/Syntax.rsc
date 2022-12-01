@@ -24,25 +24,15 @@ syntax Expr
   
 syntax Type = "boolean" | "integer" | "string";
 
-syntax OR 
-  = AND "&&" AND
-  | AND;
 
-syntax AND
-  = NOT "||" NOT
-  | NOT;
-
-lexical Str = "\"" (~["\""])* "\"";
+lexical Str = ;
 
 lexical Int 
   = [1-9][0-9]+
   | "0";
 
-lexical boolLiteral = "true" | "false";
 
-lexical Bool 
-  = OR
-  | "(" Bool ")"; 
+lexical Bool = ;
 
 
 
