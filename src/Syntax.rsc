@@ -9,11 +9,15 @@ extend lang::std::Id;
 start syntax Form 
   = "form" Id name "{" Question* questions "}"; 
 
-// TODO: question, computed question, block, if-then-else, if-then
 syntax Question
   = Str question Id parameter ":" Type type // Question
-  | Str question Id parameter ":" Type type "=" Expr expr; // Computed question
+  | Str question Id parameter ":" Type type "=" Expr expr // Computed question
+  | Block block // Block
+  | "if" "(" Expr condition ")" Block thenBlock "else" Block elseBlock // If-then-else
+  | "if" "(" Expr condition ")" Block thenBlock // If-then
+  ;
 
+syntax Block = "{" Question* questions "}";
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
 // Think about disambiguation using priorities and associativity
@@ -25,7 +29,7 @@ syntax Expr
 syntax Type = "boolean" | "integer" | "string";
 
 
-lexical Str = ;
+lexical Str = "\"" (![\"])* "\"";
 
 lexical Int 
   = [1-9][0-9]+
