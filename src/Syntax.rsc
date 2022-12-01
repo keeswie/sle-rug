@@ -25,11 +25,11 @@ syntax Expr
 syntax Type = "boolean" | "integer" | "string";
 
 
-lexical Str = ;
+lexical Str =  ;
 
 lexical Int 
   = [1-9][0-9]+
-  | "0";
+  | [0];
 
 
 lexical Bool = "True"
