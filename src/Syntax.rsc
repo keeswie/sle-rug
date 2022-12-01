@@ -19,13 +19,58 @@ syntax Question
 
 syntax Block = "{" Question* questions "}";
 
-// TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
-// Think about disambiguation using priorities and associativity
-// and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
-  = Id \ "true" \ "false" // true/false are reserved keywords.
+  = Math
+  | Logical
   ;
-  
+
+syntax Logical
+  = Disjunction
+  | Comparison
+  ;
+
+syntax Comparison 
+  = Math "\<" Math
+  | Math "\>" Math
+  | Math "\<=" Math
+  | Math "=\>" Math
+  | Math "==" Math
+  | Math "!=" Math
+  | Disjunction "==" Disjunction
+  | Disjunction "!=" Disjunction
+  ; 
+
+
+syntax Math
+  = Add
+  ;   
+
+syntax Add 
+  = Sub
+  | Sub "+" Sub
+  ;
+
+syntax Sub 
+  = Mult
+  | Mult "-" Mult
+  ;
+
+syntax Mult 
+  = Div
+  | Div "*" Div
+  ;
+
+syntax Div
+  = Number
+  | Number "/" Number
+  ;
+
+syntax Number
+  = Int
+  | "(" Math ")"
+  | Id \ "True" \ "False" // true/false are reserved keywords
+  ;
+
 syntax Type = "boolean" | "integer" | "string";
 
 
@@ -36,7 +81,8 @@ lexical Int
   | [0];
 
 
-lexical Bool = "True"
+lexical Bool 
+  = "True"
   | "False"
   | "(" Disjunction ")";
 
