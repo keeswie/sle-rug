@@ -12,7 +12,16 @@ data AForm(loc src = |tmp:///|)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
+  = question(str question, str id, AType typ)
+  | question(str question, str id, AType typ, AExpr expr)
+  | question(ABlock block)//not sure
+  | question(AExpr condition, ABlock thenBlock, ABlock elseBlock)
+  | question(AExpr condition, ABlock thenBlock)
   ; 
+
+data ABlock(loc src = |tmp:///|)
+  = block(list[AQuestion] questions)
+  ;
 
 data AExpr(loc src = |tmp:///|)
   = ref(AId id)
