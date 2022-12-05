@@ -86,8 +86,9 @@ lexical Bool
   | "False"
   | "(" Disjunction ")";
 
-lexical Disjunction = Conjunction
-  Conjunction "||" Conjunction;
+lexical Disjunction
+  = Conjunction
+  | Conjunction "||" Conjunction; //here enter?
 
 lexical Conjunction = Literal
   | Literal "&&" Literal;
