@@ -90,10 +90,12 @@ lexical Disjunction
   = Conjunction
   | Conjunction "||" Conjunction; //here enter?
 
-lexical Conjunction = Literal
+lexical Conjunction
+  = Literal
   | Literal "&&" Literal;
 
-lexical Literal = "True"
+lexical Literal
+  = "True"
   | "False"
   | Bool
   | "!" Bool;
