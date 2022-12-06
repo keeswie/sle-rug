@@ -24,8 +24,35 @@ data ABlock(loc src = |tmp:///|)
   ;
 
 data AExpr(loc src = |tmp:///|)
-  = ref(AMath math)
-  | ref(ALogical logical)
+  = ref(ALogical logical)
+  | ref(AMath math)
+  ;
+
+data ALogical(loc src = |tmp:///|)
+  = logical(ADisjunction Disjunction)
+  | logical(AComparison)
+  ;
+
+data AComparison(loc src = |tmp:///|)
+  = comparison(ABool abool)
+  ;
+
+data ADisjunction(loc src = |tmp:///|)
+  = disjunction(AConjunction conjunction)
+  | disjunction(AConjunction lh, AConjunction rh)
+  ;
+
+data AConjunction(loc src = |tmp:///|)
+  = conjunction(ALiteral literal)
+  | conjunction(ALiteral lh, ALiteral rh)
+  ;
+
+data ALiteral(loc src = |tmp:///|)
+  = literal(ABool abool)
+  ;
+
+data ABool(loc src = |tmp:///|)
+  = abool(str abool)
   ;
 
 data AMath(loc src = |tmp:///|)
