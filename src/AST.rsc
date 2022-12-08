@@ -89,4 +89,7 @@ data AId(loc src = |tmp:///|)
   = id(str name);
 
 data AType(loc src = |tmp:///|)
+  = integer()
+  | boolean()
+  | string()
   ;
