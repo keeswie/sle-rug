@@ -24,66 +24,24 @@ data ABlock(loc src = |tmp:///|)
   ;
 
 data AExpr(loc src = |tmp:///|)
-  = ref(ALogical logical)
-  | ref(AMath math)
+  = var(AId id)
+  | mult(AExpr lhs, AExpr rhs)
+  | div(AExpr lhs, AExpr rhs)
+  | add(AExpr lhs, AExpr rhs)
+  | subtr(AExpr lhs, AExpr rhs)
+  | integer(int vali)
+  | boolean(bool valb)
+  | brackets(AExpr expr)
+  | not(AExpr expr)
+  | leq(AExpr lhs, AExpr rhs)
+  | meq(AExpr lhs, AExpr rhs)
+  | more(AExpr lhs, AExpr rhs)
+  | less(AExpr lhs, AExpr rhs)
+  | equal(AExpr lhs, AExpr rhs)
+  | notequal(AExpr lhs, AExpr rhs)
+
   ;
 
-data ALogical(loc src = |tmp:///|)
-  = logical(ADisjunction Disjunction)
-  | logical(AComparison)
-  ;
-
-data AComparison(loc src = |tmp:///|)
-  = comparison(ABool abool)
-  ;
-
-data ADisjunction(loc src = |tmp:///|)
-  = disjunction(AConjunction conjunction)
-  | disjunction(AConjunction lh, AConjunction rh)
-  ;
-
-data AConjunction(loc src = |tmp:///|)
-  = conjunction(ALiteral literal)
-  | conjunction(ALiteral lh, ALiteral rh)
-  ;
-
-data ALiteral(loc src = |tmp:///|)
-  = literal(ABool abool)
-  ;
-
-data ABool(loc src = |tmp:///|)
-  = abool(str abool)
-  ;
-
-data AMath(loc src = |tmp:///|)
-  = math(AAdd add)
-  ;
-
-data AAdd(loc src = |tmp:///|)
-  = add(ASub sub)
-  | add(ASub lh, ASub rh)
-  ;
-
-data ASub(loc src = |tmp:///|)
-  = sub(AMult mult)
-  | sub(AMult lh, AMult rh)
-  ;
-
-data AMult(loc src = |tmp:///|)
-  = mult(ADiv div)
-  | mult(ADiv lh, ADiv rh)
-  ;
-
-data ADiv(loc src = |tmp:///|)
-  = div(ANumber number)
-  | div(ANumber lh, ANumber rh)
-  ;
-
-data ANumber(loc src = |tmp:///|)
-  = number(int number)
-  | number(AMath math)
-  | number(AId id)
-  ;
 
 data AId(loc src = |tmp:///|)
   = id(str name);
