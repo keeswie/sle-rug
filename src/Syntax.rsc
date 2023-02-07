@@ -6,96 +6,63 @@ extend lang::std::Id;
 /*
  * Concrete syntax of QL
  */
+
 start syntax Form 
-  = "form" Id name "{" Question* questions "}"; 
+  = "form" Id "{" Question* "}"; 
 
+// TODO: question, computed question, block, if-then-else, if-then
 syntax Question
-  = Str question Id parameter ":" Type type // Question
-  | Str question Id parameter ":" Type type "=" Expr expr // Computed question
-  | Block block // Block
-  | "if" "(" Expr condition ")" Block thenBlock "else" Block elseBlock // If-then-else
-  | "if" "(" Expr condition ")" Block thenBlock // If-then
+  = Str question Id param ":" Type type 					// Question
+  | Str question Id param ":" Type type "=" Expr exp	
+  | "if" "(" Expr comp ")" "{" Question* "}" block
+  | "if" "(" Expr comp ")" "{" Question* "}" if "else" "{" Question* "}" else
   ;
 
-syntax Block = "{" Question* questions "}";
-
+// TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
+// Think about disambiguation using priorities and associativity
+// and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
-  = Math
-  | Logical
-  ;
-
-syntax Logical
-  = Disjunction
-  | Comparison
-  ;
-
-syntax Comparison 
-  = Math "\<" Math
-  | Math "\>" Math
-  | Math "\<=" Math
-  | Math "=\>" Math
-  | Math "==" Math
-  | Math "!=" Math
-  | Disjunction "==" Disjunction
-  | Disjunction "!=" Disjunction
-  ; 
-
-
-syntax Math
-  = Add
-  ;   
-
-syntax Add 
-  = Sub
-  | Sub "+" Sub
-  ;
-
-syntax Sub 
-  = Mult
-  | Mult "-" Mult
-  ;
-
-syntax Mult 
-  = Div
-  | Div "*" Div
-  ;
-
-syntax Div
-  = Number
-  | Number "/" Number
-  ;
-
-syntax Number
-  = Int
-  | "(" Math ")"
-  | Id \ "True" \ "False" // true/false are reserved keywords
-  ;
-
-syntax Type = "boolean" | "integer" | "string";
-
-
-lexical Str = "\"" (![\"])* "\"";
-
-lexical Int 
-  = [1-9][0-9]+
-  | [0];
-
-
-lexical Bool 
-  = "True"
-  | "False"
-  | "(" Disjunction ")";
-
-lexical Disjunction
-  = Conjunction
-  | Conjunction "||" Conjunction; //here enter?
-
-lexical Conjunction
-  = Literal
-  | Literal "&&" Literal;
-
-lexical Literal
-  = "True"
-  | "False"
+  = Id \ "true" \ "false" // true/false are reserved keywords.
+  | Int
   | Bool
-  | "!" Bool;
+  | "(" Expr e ")"
+  | "!" Expr e
+  > left (left Expr l "*" Expr r
+  		 | Expr l "/" Expr r
+  		 )
+  > left ( left Expr l "+" Expr r
+         | Expr l "-" Expr r
+         )
+  > left ( left Expr l "\>" Expr r
+  		 | Expr l "\<" Expr r
+  		 | Expr l "\>=" Expr r
+  		 | Expr l "\<=" Expr r
+  		 )
+  > left (left Expr l "==" Expr r
+  		 | Expr l "!=" Expr r
+  		 )
+  > left (left Expr l "&&" Expr r
+  		 | Expr l "||" Expr r  
+  		 )
+  ;
+  
+syntax Type
+  = "string"
+  | "integer"
+  | "boolean"
+  ;
+  
+lexical Str
+  = "\"" ![\"]* "\"";
+
+lexical Int
+  = "-"[1-9][0-9]*
+  | [1-9][0-9]*
+  | [0]
+  ;
+
+lexical Bool
+  = "true"
+  | "false"
+  ;
+

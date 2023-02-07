@@ -8,40 +8,35 @@ module AST
  */
 
 data AForm(loc src = |tmp:///|)
-  = form(str name, list[AQuestion] questions)
+  = form(AId id, list[AQuestion] questions)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
-  = question(str question, AId id, AType typ)
-  | question(str question, AId id, AType typ, AExpr expr)
-  | question(ABlock block)//not sure
-  | question(AExpr condition, ABlock thenBlock, ABlock elseBlock)
-  | question(AExpr condition, ABlock thenBlock)
+  = question(str ques, AId param, AType t)
+  | compQuestion(str ques, AId param, AType t, AExpr exp)
+  | ifStatement(AExpr exp, list[AQuestion] questions)
+  | ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions)
   ; 
 
-data ABlock(loc src = |tmp:///|)
-  = block(list[AQuestion] questions)
-  ;
-
 data AExpr(loc src = |tmp:///|)
-  = var(AId id)
-  | mult(AExpr lhs, AExpr rhs)
-  | div(AExpr lhs, AExpr rhs)
-  | add(AExpr lhs, AExpr rhs)
-  | subtr(AExpr lhs, AExpr rhs)
+  = ref(AId id)
   | integer(int vali)
   | boolean(bool valb)
   | brackets(AExpr expr)
   | not(AExpr expr)
-  | leq(AExpr lhs, AExpr rhs)
-  | meq(AExpr lhs, AExpr rhs)
-  | more(AExpr lhs, AExpr rhs)
-  | less(AExpr lhs, AExpr rhs)
-  | equal(AExpr lhs, AExpr rhs)
-  | notequal(AExpr lhs, AExpr rhs)
-
+  | mult(AExpr left, AExpr right)
+  | div(AExpr left, AExpr right)
+  | add(AExpr left, AExpr right)
+  | subtract(AExpr left, AExpr right)
+  | greater(AExpr left, AExpr right)
+  | less(AExpr left, AExpr right)
+  | greq(AExpr left, AExpr right)
+  | leq(AExpr left, AExpr right)
+  | eq(AExpr left, AExpr right)
+  | neq(AExpr left, AExpr right)
+  | conj(AExpr left, AExpr right)
+  | disj(AExpr left, AExpr right)
   ;
-
 
 data AId(loc src = |tmp:///|)
   = id(str name);
@@ -51,3 +46,4 @@ data AType(loc src = |tmp:///|)
   | boolean()
   | string()
   ;
+  

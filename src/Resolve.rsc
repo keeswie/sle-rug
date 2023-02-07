@@ -26,9 +26,9 @@ RefGraph resolve(AForm f) = <us, ds, us o ds>
   when Use us := uses(f), Def ds := defs(f);
 
 Use uses(AForm f) {
-  return {}; 
+  return {<e.id.src, e.id.name>|/AExpr e := f, e has id} + {<i.src, i.name> | /AId i := f}; ; 
 }
 
 Def defs(AForm f) {
-  return {}; 
+  return {<q.param.name, q.param.src> |/AQuestion q := f, q has param};
 }

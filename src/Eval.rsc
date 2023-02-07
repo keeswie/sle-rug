@@ -2,7 +2,7 @@ module Eval
 
 import AST;
 import Resolve;
-
+import IO;
 /*
  * Implement big-step semantics for QL
  */
@@ -27,7 +27,22 @@ data Input
 // produce an environment which for each question has a default value
 // (e.g. 0 for int, "" for str etc.)
 VEnv initialEnv(AForm f) {
-  return ();
+  VEnv env = ();
+  for(/question(_, AId param, AType t) := f){
+    switch(t){
+      case integer(): {env =  env + (param.name: vint(0));}
+      case boolean(): {env = env + (param.name: vbool(false));}
+      case string(): {env = env + (param.name: vstr(""));}
+    }
+  };
+  for(/compQuestion(_, AId param, AType t, _) := f){
+    switch(t){
+      case integer(): {env =  env + (param.name: vint(0));}
+      case boolean(): {env = env + (param.name: vbool(false));}
+      case string(): {env = env + (param.name: vstr(""));}
+    }
+  };
+  return env;
 }
 
 
@@ -40,20 +55,64 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  return (); 
+  for(q <- f.questions){
+    venv = eval(q, inp, venv);
+    
+  }
+  return venv; 
 }
-
-VEnv eval(AQuestion q, Input inp, VEnv venv) {
   // evaluate conditions for branching,
   // evaluate inp and computed questions to return updated VEnv
-  return (); 
+VEnv eval(AQuestion q, Input inp, VEnv venv) {   
+  switch(q) {
+    case question(str ques, AId param,_): {
+      println("question");
+      if("<ques>" == ("\"" + inp.question + "\"")){
+        venv[param.name] = inp.\value;
+      }
+    }
+    case compQuestion(str ques, AId param, _, AExpr exp): {
+      println("compQuestion");
+      if(ques == inp.question){
+        venv[param.name] = eval(exp, venv);
+      }
+    }
+    case ifStatement(_, list[AQuestion] questions): {
+      println("ifQuestion");
+      for(question <- questions){
+        venv = eval(question, inp, venv);
+      }
+    }
+    case ifElseStatement(_, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions): {
+      println("ifelseQuestion");
+      for(question <- ifQuestions){
+        venv = eval(question, inp, venv);
+      }
+      for(question <- elseQuestions){
+        venv = eval(question, inp, venv);
+      }
+    }
+    
+  }
+  
+  return venv; 
 }
 
 Value eval(AExpr e, VEnv venv) {
   switch (e) {
     case ref(id(str x)): return venv[x];
-    
-    // etc.
+    case integer(int vali): return vint(vali);
+    case boolean(bool valb): return vbool(valb);
+    case brackets(AExpr expr): return eval(expr, venv);
+    case not(AExpr expr): return vbool(!(eval(expr, venv).b));
+    case mult(AExpr left, AExpr right): return vint(eval(left, venv).n * eval(right, venv).n);
+    case div(AExpr left, AExpr right):return vint(eval(left, venv).n / eval(right, venv).n);
+    case add(AExpr left, AExpr right):return vint(eval(left, venv).n + eval(right, venv).n);
+    case subtract(AExpr left, AExpr right):return vint(eval(left, venv).n - eval(right, venv).n);
+    case greater(AExpr left, AExpr right):return vbool(eval(left, venv).n > eval(right, venv).n);
+    case less(AExpr left, AExpr right):return vbool(eval(left, venv).n < eval(right, venv).n);
+    case greq(AExpr left, AExpr right):return vbool(eval(left, venv).n >= eval(right, venv).n);
+    case leq(AExpr left, AExpr right):return vbool(eval(left, venv).n <= eval(right, venv).n);
     
     default: throw "Unsupported expression <e>";
   }

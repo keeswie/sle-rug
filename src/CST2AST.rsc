@@ -4,6 +4,11 @@ import Syntax;
 import AST;
 
 import ParseTree;
+import String;
+import Boolean;
+
+import IO;
+
 
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
@@ -15,79 +20,60 @@ import ParseTree;
  * - See the ref example on how to obtain and propagate source locations.
  */
 
-AForm cst2ast(start[Form] sf) = cst2ast(sf.top); 
+AForm cst2ast(start[Form] sf)
+  = cst2ast(sf.top);
 
-AForm cst2ast(f:(Form) `form <Id name> {<Question* qq>}`)
- = form(cst2ast(name), [cst2ast(q) | Question q <- qq], src= f.src);
-
+AForm cst2ast(f:(Form)`form <Id name> { <Question* qq> }`) 
+  = form(cst2ast(name),[ cst2ast(q) | Question q <- qq ],src=f@\loc);
 
 AQuestion cst2ast(Question q) {
-  switch(q){
-    case (Question) `<Str question> <Id id> : <Type t>`:
-      return question("<question>", cst2ast(id), cst2ast(t), src=id.src);
-    case(Question) `<Str question> <Id id> : <Type t> = <Expr expr>`:
-      return question("<question>", cst2ast(id), cst2ast(t), cst2ast(expr), src = id.src);
-    case(Question) `<Block block>`:
-      return question(cst2ast(block) src=block.src);
-    case(Question) `if ( <Expr expr> ) <Block b1> else <Block b2>`:
-      return question(cst2ast(expr), cst2ast(b1), cst2ast(b2), src=expr.src);
-    case(Question) `if ( <Expr expr> ) <Block b1>`:
-      return question(cst2ast(expr), cst2ast(b1), src=expr.src);
-    default: throw "Unhandled expression: <q>";
-  }
-}
-
-ABlock cst2ast(Block b){
-  switch(b){
-    case (Block) `{ <Question* qq> }`:
-      return block([cst2ast(q) | Question q <- qq], src= qq.src);
-    default: throw "Unhandled expression: <q>";
+  switch (q) {
+    case (Question)`<Str q1> <Id param> : <Type t>`:
+      return question("<q1>", cst2ast(param), cst2ast(t), src=q@\loc);
+    case (Question)`<Str q1> <Id param> : <Type t> = <Expr exp>`: 
+      return compQuestion("<q1>", cst2ast(param), cst2ast(t), cst2ast(exp), src=q@\loc);
+    case (Question)`if ( <Expr exp> ) { <Question* qq> }`: 
+      return ifStatement(cst2ast(exp), [cst2ast(q1) | q1 <- qq], src=q@\loc);
+    case (Question)`if ( <Expr exp> ) { <Question* ifqq> } else { <Question* elseqq> }`: 
+      return ifElseStatement(cst2ast(exp), [cst2ast(q1) | q1 <- ifqq], [cst2ast(q2) | q2 <- elseqq], src=q@\loc);
+      
+    default: throw "Unhandled question: <q>";
   }
 }
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case (Expr)`<Id x>`: return ref(id("<x>", src=x.src), src=x.src);
-    case (Expr) `<Expr lhs> + <Expr rhs>`: 
-      return add(cst2ast(lhs), cst2ast(rhs), src=lhs.src); 
-    case (Expr) `<Expr lhs> - <Expr rhs>`: 
-      return subtr(cst2ast(lhs), cst2ast(rhs), src=lhs.src); 
-    case (Expr) `<Expr lhs> * <Expr rhs>`: 
-      return  mult(cst2ast(lhs), cst2ast(rhs), src=lhs.src); 
-    case (Expr) `<Expr lhs> / <Expr rhs>`: 
-      return div(cst2ast(lhs), cst2ast(rhs), src=lhs.src); 
-    case (Expr) `Int vali`:
-      return integer(vali, src=vali.src);
-    case (Expr)  `Bool valb`:
-      return boolean(valb, src=valb.src);
-    case (Expr) `( <Expr expr> )`:
-      return brackets(cst2ast(expr), src=expr.src);
-    case (Expr) `! <Expr expr>`:
-      return not(cst2ast(expr), src=expr.src);
-    case (Expr) `<Expr lhs> \<= <Expr rhs>`:
-      return leq(cst2ast(lhs), cst2ast(rhs), src=lhs.src);
-    case (Expr) `<Expr lhs> =\> <Expr rhs>`:
-      return meq(cst2ast(lhs), cst2ast(rhs), src=lhs.src);
-    case (Expr) `<Expr lhs> == <Expr rhs>`:
-      return equal(cst2ast(lhs), cst2ast(rhs), src=lhs.src);
-    case (Expr) `<Expr lhs> \> <Expr rhs>`:
-      return more(cst2ast(lhs), cst2ast(rhs), src=lhs.src);
-    case (Expr) `<Expr lhs> \< <Expr rhs>`:
-      return less(cst2ast(lhs), cst2ast(rhs), src=lhs.src);
-    case (Expr) `<Expr lhs> != <Expr rhs>`:
-      return notequal(cst2ast(lhs), cst2ast(rhs), src=lhs.src);
+    case (Expr)`<Id x>`                         : return ref(cst2ast(x), src=x@\loc);
+    case (Expr)`<Int i>`                        : return integer(toInt("<i>"), src=i@\loc);
+    case (Expr)`<Bool b>`                       : return boolean(fromString("<b>"), src=b@\loc);    
+    case (Expr)`(<Expr exp>)`                   : return brackets(cst2ast(exp), src=e@\loc);
+    case (Expr)`!<Expr exp>`                    : return not(cst2ast(exp), src=e@\loc);
+    case (Expr)`<Expr left> * <Expr right>`     : return mult(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> / <Expr right>`     : return div(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> + <Expr right>`     : return add(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> - <Expr right>`     : return subtract(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> \> <Expr right>`    : return greater(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> \< <Expr right>`    : return less(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> \>= <Expr right>`   : return greq(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> \<= <Expr right>`   : return leq(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> == <Expr right>`    : return eq(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> != <Expr right>`    : return neq(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> && <Expr right>`    : return conj(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> || <Expr right>`    : return disj(cst2ast(left), cst2ast(right), src=e@\loc);
     
     default: throw "Unhandled expression: <e>";
   }
 }
 
-default AType cst2ast(Type t) {
-  switch(t){
-    case (Type) `integer`:
-      return integer(src=t.src);
-    case (Type) `boolean`:
-      return boolean(src=t.src);
-    case (Type) `string`:
-      return (string(src=t.src).
+AType cst2ast(Type t) {
+  println(t);
+  switch(t) {
+    case (Type)`integer`: return integer(src=t@\loc);
+    case (Type)`boolean`:  return boolean(src=t@\loc) ;
+    case (Type)`string` : return string(src=t@\loc);
+    
+    default: throw "Unhandled type: <t>";
   }
 }
+
+AId cst2ast((Id)`<Id d>`) = id("<d>", src=d@\loc);
