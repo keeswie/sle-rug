@@ -113,6 +113,9 @@ Value eval(AExpr e, VEnv venv) {
     case less(AExpr left, AExpr right):return vbool(eval(left, venv).n < eval(right, venv).n);
     case greq(AExpr left, AExpr right):return vbool(eval(left, venv).n >= eval(right, venv).n);
     case leq(AExpr left, AExpr right):return vbool(eval(left, venv).n <= eval(right, venv).n);
+    case neq(AExpr left, AExpr right):return vbool(eval(left, venv).n != eval(right, venv).n);
+    case conj(AExpr left, AExpr right):return vbool(eval(left, venv).b && eval(right, venv).b);
+    case disj(AExpr left, AExpr right):return vbool(eval(left, venv).b || eval(right, venv).b);
     
     default: throw "Unsupported expression <e>";
   }
