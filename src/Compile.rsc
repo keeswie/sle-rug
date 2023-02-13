@@ -38,7 +38,7 @@ str form2js(AForm f) {
          '<for(q<-f.questions){temp+=8;>
          '<QuestoString(q, temp, "form",0,1)>
          '<}>
-         'console.log(form);  
+         ' (form);  
          ";
 }
 
