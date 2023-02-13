@@ -6,11 +6,8 @@ export class JForm extends React.Component {
   constructor(props) {
     super(props);
     this.handleQuestionChange = this.handleQuestionChange.bind(this);
+    this.handleAskValue = this.handleAskValue.bind(this);
     this.state = { id: props.id, questions: props.questions };
-    
-    //   this.handleChange = this.handleChange.bind(this);
-    //   this.handleSubmit = this.handleSubmit.bind(this);
-    
   }
   handleQuestionChange(question, value) {
     const nextShapes = this.state.questions.map(q => {
@@ -20,25 +17,30 @@ export class JForm extends React.Component {
         return q;
       }
     });
-   this.setState({
+    this.setState({
     questions: nextShapes,
     })
      
   }
-  // handleChange(event) {    this.setState({value: event.target.value});  }
-  // handleSubmit(event) {
-  //   alert('A name was submitted: ' + this.state.value);
-  //   event.preventDefault();
-  // }
+  handleAskValue(param){
+    let answer;
+    this.state.questions.map(q => {
+      if (q.param === param) {
+        if(q.currentValue){
+          console.log("q.currentValue")
+          answer = 1
+        }       
+      }})
+    return answer
+  }
  
   render() {
     console.log(this.state);
-    let i=0
     return (
       <div>
         <h1>{this.state.id}</h1>
         <ul>
-        {this.state.questions.map((q) =>{return <JQuestion question={q}  onQuestionChange={this.handleQuestionChange}/>} )}
+        {this.state.questions.map((q) =>{return <JQuestion question={q}  onQuestionChange={this.handleQuestionChange} onAskValue={this.handleAskValue}/>} )}
       </ul>
       </div>
     );

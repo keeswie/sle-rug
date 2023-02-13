@@ -34,11 +34,13 @@ str form2js(AForm f) {
   return "import { Question, IfQuestion } from \"./Question.js\";
          'import { Form } from \"./Form.js\";
          'import { Expression } from \"./Expression.js\";
+         'export function getForm() {
          'let form = new Form(\"<f.id.name>\");
          '<for(q<-f.questions){temp+=8;>
          '<QuestoString(q, temp, "form",0,1)>
          '<}>
-         ' (form);  
+         'return form;
+         '}  
          ";
 }
 
@@ -52,7 +54,7 @@ str QuestoString(AQuestion q, int temp, str parent, int flag, int ifCount){
     case compQuestion(str ques, AId param, AType t, AExpr exp): {
       println("compQuestion");
       return "<exprToObject(exp,temp, "")>
-             'let <param.name> = new Question(<ques>,\"<param.name>\",\"<getType(t)>\",ex<temp>)
+             'let <param.name> = new Question(<ques>,\"<param.name>\",\"expression\",ex<temp>)
              '<parent>.addQuestion(<param.name>,<flag>)
           ";
     }

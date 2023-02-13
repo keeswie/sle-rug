@@ -1,4 +1,4 @@
-export class Question {
+  export class Question {
     constructor(ques, param, t, currentValue) {
       this.ques = ques;
       this.param = param;

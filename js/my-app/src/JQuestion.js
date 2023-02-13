@@ -5,15 +5,47 @@ import { Question } from "./Question";
 export class JQuestion extends React.Component {
   constructor(props) {
     super(props);
-
+    
     this.handleChange = this.handleChange.bind(this);
-
+    this.findValue = this.findValue.bind(this);
+    let temp
+    if(props.question.t === "expression"){
+      temp = this.calculateExpr(props.question.currentValue)
+      console.log(temp)
+    }else{
+      temp = props.question.currentValue;
+    }
     this.state = {
       ques: props.question.ques,
       param: props.question.param,
       t: props.question.t,
-      currentValue: props.question.currentValue,
+      currentValue: temp,
     };
+  }
+
+  calculateExpr(expr){
+    console.log(expr.op)
+    switch (expr.op) {
+      case "ref": return this.findValue(expr.value);
+      case "integer": return expr.value;
+      case "boolean": return expr.value;
+      case "brackets": return this.calculateExpr(expr.left);
+      case "not": return !(this.calculateExpr(expr.left));
+      case "mult": return (this.calculateExpr(expr.left) * this.calculateExpr(expr.right));
+      case "div": return (this.calculateExpr(expr.left) / this.calculateExpr(expr.right));
+      case "add": return (this.calculateExpr(expr.left) + this.calculateExpr(expr.right));
+      case "subtract": return (this.calculateExpr(expr.left) - this.calculateExpr(expr.right));
+      case "greater": return (this.calculateExpr(expr.left) > this.calculateExpr(expr.right));
+      case "less": return (this.calculateExpr(expr.left) < this.calculateExpr(expr.right));
+      case "greq": return (this.calculateExpr(expr.left) >= this.calculateExpr(expr.right));
+      case "leq": return (this.calculateExpr(expr.left) <= this.calculateExpr(expr.right));
+      case "neq": return (this.calculateExpr(expr.left) != this.calculateExpr(expr.right));
+      case "conj": return (this.calculateExpr(expr.left) && this.calculateExpr(expr.right));
+      case "disj": return (this.calculateExpr(expr.left) || this.calculateExpr(expr.right));
+    }
+  }
+  findValue(param){
+    return this.props.onAskValue(param)
   }
   handleChange(e) {
     if (this.state.t === "boolean") {
@@ -59,6 +91,12 @@ export class JQuestion extends React.Component {
             ></textarea>
           </div>
         );
+        case "expression":
+          return (
+            <div>
+              {this.state.currentValue}
+            </div>
+          );
     }
   }
 
