@@ -1,0 +1,3 @@
+to run the website:
+1. run the compile function from the Compile.rsc files, this will create program.js in /js/my-app/src.
+2. start up the website with npm start (npm install might be neccessary)

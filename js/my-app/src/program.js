@@ -18,14 +18,14 @@ form.addQuestion(hasSoldHouse, 0)
 
 let ex33 = new Expression("","", "ref", "hasSoldHouse");
 
-let ifq2 = new IfQuestion(ex33)
+let ifq12 = new IfQuestion(ex33)
 
 let sellingPrice = new Question("What was the selling price?","sellingPrice","integer", 1)
-ifq2.addQuestion(sellingPrice, 1)
+ifq12.addQuestion(sellingPrice, 1)
              
 
 let privateDebt = new Question("Private debts for the sold house:","privateDebt","integer", 1)
-ifq2.addQuestion(privateDebt, 1)
+ifq12.addQuestion(privateDebt, 1)
              
 
 let ex632 = new Expression("","", "ref", "sellingPrice");
@@ -36,10 +36,10 @@ let ex1256 = new Expression(ex1257,"", "brackets");
 let ex63 = new Expression(ex632,ex1256,"subtract");
 
 let valueResidue = new Question("Value residue:","valueResidue","expression",ex63)
-ifq2.addQuestion(valueResidue,1)
+ifq12.addQuestion(valueResidue,1)
           
 
-form.addQuestion(ifq2,0)
+form.addQuestion(ifq12,0)
              
 
 return form;
