@@ -37,9 +37,7 @@ calculateExpr(expr){
       case "disj": return (this.calculateExpr(expr.left) || this.calculateExpr(expr.right));
     }
     }else{
-      console.log(this.state.param)
-      console.log(this.findValue(this.state.param))
-      return expr
+     return expr
     }
   }
   findValue(param){
@@ -56,7 +54,7 @@ calculateExpr(expr){
       this.setState({ currentValue: e.target.value });
       this.props.onQuestionChange(this.state.param, parseInt(e.target.value));
     }
-    console.log("change")
+
     this.forceUpdate();
   }
   renderSwitch(question) {

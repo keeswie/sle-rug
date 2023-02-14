@@ -35,8 +35,7 @@ export class JForm extends React.Component {
           answer = q.currentValue
         }   
       }})
-      console.log("test")
-    console.log(this.state)
+
     return answer
   }
  
