@@ -31,13 +31,14 @@ HTMLElement form2html(AForm f) {
 
 str form2js(AForm f) {
   int temp = 1;
+  int ifc= 2;
   return "import { Question, IfQuestion } from \"./Question.js\";
          'import { Form } from \"./Form.js\";
          'import { Expression } from \"./Expression.js\";
          'export function getForm() {
          'let form = new Form(\"<f.id.name>\");
-         '<for(q<-f.questions){temp+=8;>
-         '<QuestoString(q, temp, "form",0,1)>
+         '<for(q<-f.questions){temp+=8; ifc+=2;>
+         '<QuestoString(q, temp, "form",0,ifc)>
          '<}>
          'return form;
          '}  
@@ -60,7 +61,7 @@ str QuestoString(AQuestion q, int temp, str parent, int flag, int ifCount){
     }
     case ifStatement(AExpr exp, list[AQuestion] questions): {
       println("ifQuestion");
-      ifCount = ifCount + 1;
+      ifCount = ifCount + 2;
       return "<exprToObject(exp,temp, "")>
              'let ifq<ifCount> = new IfQuestion(ex<temp>)
              '<for(ques<-questions){temp+=10;>
@@ -71,7 +72,7 @@ str QuestoString(AQuestion q, int temp, str parent, int flag, int ifCount){
     }
     case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions): {
       println("ifelseQuestion");
-      ifCount = ifCount + 1;
+      ifCount = ifCount + 5;
       return "<exprToObject(exp,temp, "")>
              'let ifq<ifCount> = new IfQuestion(ex<temp>)
              '<for(q<-ifQuestions){temp+=13;>

@@ -5,28 +5,21 @@ import { Question } from "./Question";
 export class JQuestion extends React.Component {
   constructor(props) {
     super(props);
-    
     this.handleChange = this.handleChange.bind(this);
     this.findValue = this.findValue.bind(this);
-    let temp
-    if(props.question.t === "expression"){
-      temp = this.calculateExpr(props.question.currentValue)
-      console.log(temp)
-    }else{
-      temp = props.question.currentValue;
-    }
+    
     this.state = {
       ques: props.question.ques,
       param: props.question.param,
       t: props.question.t,
-      currentValue: temp,
+      currentValue: props.question.currentValue,
     };
   }
 
-  calculateExpr(expr){
-    console.log(expr.op)
+calculateExpr(expr){
+  if(typeof expr.op !== 'undefined'){
     switch (expr.op) {
-      case "ref": return this.findValue(expr.value);
+      case "ref": {return this.findValue(expr.value)} ;
       case "integer": return expr.value;
       case "boolean": return expr.value;
       case "brackets": return this.calculateExpr(expr.left);
@@ -43,6 +36,11 @@ export class JQuestion extends React.Component {
       case "conj": return (this.calculateExpr(expr.left) && this.calculateExpr(expr.right));
       case "disj": return (this.calculateExpr(expr.left) || this.calculateExpr(expr.right));
     }
+    }else{
+      console.log(this.state.param)
+      console.log(this.findValue(this.state.param))
+      return expr
+    }
   }
   findValue(param){
     return this.props.onAskValue(param)
@@ -51,10 +49,15 @@ export class JQuestion extends React.Component {
     if (this.state.t === "boolean") {
       this.setState({ currentValue: !this.state.currentValue });
       this.props.onQuestionChange(this.state.param, !this.state.currentValue);
-    } else {
+    } else if(this.state.t === "string"){
       this.setState({ currentValue: e.target.value });
       this.props.onQuestionChange(this.state.param, e.target.value);
+    }else{
+      this.setState({ currentValue: e.target.value });
+      this.props.onQuestionChange(this.state.param, parseInt(e.target.value));
     }
+    console.log("change")
+    this.forceUpdate();
   }
   renderSwitch(question) {
     switch (question.t) {
@@ -64,7 +67,7 @@ export class JQuestion extends React.Component {
             <input
               name={question.param}
               type="number"
-              value={this.state.currentValue}
+              value={this.calculateExpr(this.state.currentValue)}
               onChange={this.handleChange}
             />
           </div>
@@ -76,7 +79,7 @@ export class JQuestion extends React.Component {
             <input
               name={question.param}
               type="checkbox"
-              checked={this.state.currentValue}
+              checked={this.calculateExpr(this.state.currentValue)}
               onChange={this.handleChange}
             />
           </div>
@@ -86,33 +89,28 @@ export class JQuestion extends React.Component {
         return (
           <div>
             <textarea
-              value={this.state.currentValue}
+              value={this.calculateExpr(this.state.currentValue)}
               onChange={this.handleChange}
             ></textarea>
           </div>
         );
         case "expression":
-          return (
-            <div>
-              {this.state.currentValue}
-            </div>
-          );
+              if(typeof this.calculateExpr(this.state.currentValue)==="boolean"){
+                return<div>True</div>
+              }else{
+                return<div>{this.calculateExpr(this.state.currentValue)}</div>
+              }
     }
   }
 
-  renderIf(question) {
-    return <h3>hoi</h3>;
-  }
   render() {
-    if (this.state.ques) {
+    
       return (
         <div>
           <h3>{this.state.ques}</h3>
           {this.renderSwitch(this.state)}
         </div>
       );
-    } else {
-      return <div>{this.renderIf(this.state)}</div>;
-    }
+  
   }
 }

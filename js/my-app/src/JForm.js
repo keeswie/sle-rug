@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { JQuestion }from "./JQuestion";
 import { Question } from "./Question";
+import { JIfQuestion } from "./JIfQuestion";
 export class JForm extends React.Component {
   constructor(props) {
     super(props);
@@ -10,8 +11,10 @@ export class JForm extends React.Component {
     this.state = { id: props.id, questions: props.questions };
   }
   handleQuestionChange(question, value) {
+    
     const nextShapes = this.state.questions.map(q => {
       if (q.param === question) {
+        
         return new Question(q.ques, q.param, q.t, value)        
       } else {
         return q;
@@ -20,27 +23,31 @@ export class JForm extends React.Component {
     this.setState({
     questions: nextShapes,
     })
-     
+    
+    
   }
   handleAskValue(param){
+    
     let answer;
     this.state.questions.map(q => {
       if (q.param === param) {
         if(q.currentValue){
-          console.log("q.currentValue")
-          answer = 1
-        }       
+          answer = q.currentValue
+        }   
       }})
+      console.log("test")
+    console.log(this.state)
     return answer
   }
  
   render() {
-    console.log(this.state);
     return (
       <div>
         <h1>{this.state.id}</h1>
         <ul>
-        {this.state.questions.map((q) =>{return <JQuestion question={q}  onQuestionChange={this.handleQuestionChange} onAskValue={this.handleAskValue}/>} )}
+        {this.state.questions.map((q) =>{if(q.ques){return <JQuestion question={q}  onQuestionChange={this.handleQuestionChange} onAskValue={this.handleAskValue}/>}else{
+          return  <JIfQuestion question={q}  onQuestionChange={this.handleQuestionChange} onAskValue={this.handleAskValue}/>
+        }})}
       </ul>
       </div>
     );
