@@ -3,8 +3,7 @@ module Compile
 import AST;
 import Resolve;
 import IO;
-import lang::html::AST; // see standard library
-import lang::html::IO;
+import lang::html5::DOM;
 
 /*
  * Implement a compiler for QL to HTML and Javascript
@@ -22,12 +21,162 @@ import lang::html::IO;
 void compile(AForm f) {
   println(f.src);
   writeFile(|project://sle-rug/js/my-app/src/program|[extension="js"].top, form2js(f));
-  writeFile(f.src[extension="html"].top, writeHTMLString(form2html(f)));
+  writeFile(f.src[extension="html"].top, toString(form2html(f)));
   println("done");
 }
 
-HTMLElement form2html(AForm f) {
-  return html([]);
+HTML5Node form2html(AForm f) {
+  return html(
+    head(
+      title(f.id.name),
+      script(src(f.src[extension="js"].file))
+      // TODO: Add react files
+    ),
+    body(
+      parseQs2H5(f.questions, div(id("questions")))
+    )
+  );
+}
+
+HTML5Node parseQs2H5(list[AQuestion] qq, HTML5Node parent) {
+  for(AQuestion q <- qq) {
+    parent.kids = parent.kids + [parseQ2H5(q)];
+  }
+
+  return parent;
+}
+
+HTML5Node parseQ2H5(AQuestion question) {
+  switch(question) {
+    case question(str ques, AId param, AType t): {
+      return parseQT2H5(question, false);
+    }
+    case compQuestion(str ques, AId param, AType t, AExpr exp): {
+      return parseQT2H5(question, true);
+    }
+    case ifStatement(AExpr exp, list[AQuestion] qs): {
+      return div(
+        parseQs2H5(qs, div(id("ifQuestions"))),
+        br()
+      );
+    }
+    case ifElseStatement(AExpr exp, list[AQuestion] qs1, list[AQuestion] qs2): {
+      return div(
+        parseQs2H5(qs1, div(id("ifQuestions"))),
+        br(),
+        parseQs2H5(qs2, div(id("elseQuestions"))),
+        br()
+      );
+    }
+    
+    default: {
+      return div();
+    }
+  }
+}
+
+HTML5Node parseQT2H5(AQuestion q, bool d) {
+  HTML5Attr inputType;
+  switch(q.t) {
+    case integer(): {
+      inputType = \type("integer");
+    }
+    case boolean(): {
+      inputType = \type("checkbox");
+    }
+    case string(): {
+      inputType = \type("text");
+    }
+  }
+
+  HTML5Node inputLabel;
+  if (d) {
+    inputLabel = input(inputType, name("<q.param.name>"), id("<q.param.name>"), disabled("disabled"));
+  } else {
+    inputLabel = input(inputType, name("<q.param.name>"), id("<q.param.name>"));
+  }
+
+  return div(
+    label(\for("<q.param.name>"), q.ques),
+    inputLabel,
+    br()
+  );
+}
+
+str exp2html5s(AExpr exp) {
+  switch(exp) {
+    case ref(AId id): {
+      return id.name;
+    }
+
+    case integer(int vali): {
+      return "<vali>";
+    }
+
+    case boolean(bool b): {
+      return "<b>";
+    }
+
+    case brackets(AExpr e): {
+      return "(" + exp2html5s(e) + ")";
+    }
+
+    case not(AExpr e): {
+      return "!" + exp2html5s(e);
+    }
+
+    case mult(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " * " + exp2html5s(e2);
+    }
+
+    case div(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " / " + exp2html5s(e2);
+    }
+
+    case add(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " + " + exp2html5s(e2);
+    }
+
+    case subtract(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " - " + exp2html5s(e2);
+    }
+
+    case greater(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " \> " + exp2html5s(e2);
+    }
+
+    case greq(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " \>= " + exp2html5s(e2);
+    }
+
+    case less(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " \< " + exp2html5s(e2);
+    }
+
+    case leq(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " \<= " + exp2html5s(e2);
+    }
+
+    case eq(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " == " + exp2html5s(e2);
+    }
+
+    case neq(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " != " + exp2html5s(e2);
+    }
+
+    case conj(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " && " + exp2html5s(e2);
+    }
+
+    case disj(AExpr e1, AExpr e2): {
+      return exp2html5s(e1) + " || " + exp2html5s(e2);
+    }
+
+    default: {
+      return "error";
+    }
+  }
 }
 
 str form2js(AForm f) {
